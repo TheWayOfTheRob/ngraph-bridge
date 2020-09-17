@@ -49,7 +49,7 @@ IE_Executable::IE_Executable(shared_ptr<Function> func, string device)
 
   if (!m_func_empty) {
     HandleNoParamsCase(func2);  // this may update #params
-    set_parameters_and_results(*func2);
+    //set_parameters_and_results(*func2);
 
     NGRAPH_VLOG(2) << "Creating IE CNN network using nGraph function";
     m_network = InferenceEngine::CNNNetwork(func2);
@@ -205,6 +205,7 @@ void IE_Executable::HandleNoParamsCase(shared_ptr<ngraph::Function>& func) {
         THROW_IE_EXCEPTION
             << "Unable to add a parameter to a function with no parameters!";
       }
+      set_parameters_and_results(*func);
     }
   }
 }

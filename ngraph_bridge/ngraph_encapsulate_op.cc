@@ -245,7 +245,7 @@ void NGraphEncapsulateOp::Compute(OpKernelContext* ctx) {
   int ng_output_tensor_size_in_bytes = 0;
   std::vector<Tensor> tf_output_tensors;
   {
-    if(ctx->num_outputs() != ng_exec->get_results().size()) {
+    if(ctx->num_outputs() < ng_exec->get_results().size()) {
       string status_string = "Mismatching number of outputs between TF(" + to_string(ctx->num_outputs()) + 
       ") and ng_exec(" + to_string(ng_exec->get_results().size()) + ")";
       NGRAPH_VLOG(1) << status_string;
