@@ -209,7 +209,7 @@ void NGraphEncapsulateOp::Compute(OpKernelContext* ctx) {
     step_id = ctx->step_id();
 
     // Get ngraph executable and inputs information
-    OP_REQUIRES_OK(ctx, ng_encap_impl_.GetNgExecutable(
+    OP_REQUIRES_OK(ctx, ng_encap_impl_.GetNgExecutable(ctx,
                             tf_input_tensors, input_shapes, static_input_map,
                             ng_exec, ng_function));
 
@@ -238,11 +238,26 @@ void NGraphEncapsulateOp::Compute(OpKernelContext* ctx) {
   NGRAPH_VLOG(4) << "NGraphEncapsulateOp::Compute allocated argument tensors "
                     "for cluster "
                  << ng_encap_impl_.GetNgraphCluster();
+  
+  
   // Allocate tensors for the output results.
   vector<shared_ptr<ngraph::runtime::Tensor>> ng_outputs;
   int ng_output_tensor_size_in_bytes = 0;
   std::vector<Tensor> tf_output_tensors;
   {
+    if(ctx->num_outputs() != ng_exec->get_results().size()) {
+      string status_string = "Mismatching number of outputs between TF(" + to_string(ctx->num_outputs()) + 
+      ") and ng_exec(" + to_string(ng_exec->get_results().size()) + ")";
+      NGRAPH_VLOG(1) << status_string;
+      NgraphSerialize("tf_function_error_" + ctx->op_kernel().name() + ".json",ng_function);
+      OP_REQUIRES(ctx, false, errors::Internal(status_string));
+    }
+    // NGRAPH_CHECK(ctx->num_outputs() == ng_exec->get_results().size(),
+    //           "Mismatching number of outputs between TF (",
+    //            ctx->num_outputs(), ") and ng_exec (", ng_exec->get_results().size(), ")");
+    // for (int i = 0; i < ctx->num_outputs(); i++) {
+    //   tf_input_tensors.push_back(ctx->input(i));
+    // }
     NG_TRACE("Output: maybe create", name(), "");
     for (auto i = 0; i < ng_exec->get_results().size(); i++) {
       auto ng_element = ng_exec->get_results()[i];

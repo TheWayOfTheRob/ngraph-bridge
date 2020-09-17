@@ -3118,6 +3118,7 @@ const static std::map<
         {"ZerosLike", TranslateZerosLikeOp}};
 
 Status Builder::TranslateGraph(
+    OpKernelContext* ctx,
     const std::vector<TensorShape>& inputs,
     const std::vector<const Tensor*>& static_input_map,
     const Graph* input_graph, shared_ptr<ng::Function>& ng_function) {
@@ -3154,6 +3155,14 @@ Status Builder::TranslateGraph(
     } else {
       tf_ops.push_back(n);
     }
+  }
+
+  if(ctx && ctx->num_outputs() != tf_ret_vals.size()) {
+    string status_string = "Mismatching number of outputs between TF(" + to_string(ctx->num_outputs()) + 
+    ") and _Retvals(" + to_string(tf_ret_vals.size()) + ")";
+    NGRAPH_VLOG(1) << status_string;
+    // OP_REQUIRES(ctx, false, errors::Internal(status_string));
+    return errors::Internal(status_string);
   }
 
   //
@@ -3276,6 +3285,15 @@ Status Builder::TranslateGraph(
       passes.register_pass<pass::TransposeSinking>();
     passes.run_passes(ng_function);
   }
+
+  if(tf_ret_vals.size() != ng_function->get_results().size()) {
+    string status_string = "Mismatching number of outputs between TF(" + to_string(tf_ret_vals.size()) + 
+    ") and ngfunc-results(" + to_string(ng_function->get_results().size()) + ")";
+    NGRAPH_VLOG(1) << status_string;
+    // OP_REQUIRES(ctx, false, errors::Internal(status_string));
+    return errors::Internal(status_string);
+  }
+
 
   //
   // Request row-major layout on results.

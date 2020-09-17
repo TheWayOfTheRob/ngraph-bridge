@@ -81,6 +81,7 @@ Status NGraphEncapsulateImpl::ComputeSignature(
 
 // Calls ComputeSignature and gets ngraph executable
 Status NGraphEncapsulateImpl::GetNgExecutable(
+    OpKernelContext* ctx,
     const std::vector<Tensor>& tf_input_tensors,
     std::vector<TensorShape>& input_shapes,
     std::vector<const Tensor*>& static_input_map,
@@ -105,7 +106,7 @@ Status NGraphEncapsulateImpl::GetNgExecutable(
     MemoryProfile(vm0, rss0);
 
     NGRAPH_VLOG(1) << "Compilation cache miss: " << m_name;
-    TF_RETURN_IF_ERROR(Builder::TranslateGraph(input_shapes, static_input_map,
+    TF_RETURN_IF_ERROR(Builder::TranslateGraph(ctx, input_shapes, static_input_map,
                                                &m_graph, ng_function));
     ng_function->set_friendly_name(m_name);
 

@@ -104,7 +104,7 @@ TEST(EncapsulateOp, GetNgExecutable) {
   std::shared_ptr<Executable> ng_exec;
   std::shared_ptr<ngraph::Function> ng_function;
 
-  ASSERT_OK(ng_encap_impl.GetNgExecutable(
+  ASSERT_OK(ng_encap_impl.GetNgExecutable(nullptr,
       input_tensors, input_shapes, static_input_map, ng_exec, ng_function));
 }
 

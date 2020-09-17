@@ -21,6 +21,7 @@
 #include <vector>
 
 #include <ie_core.hpp>
+#include "logging/ngraph_log.h"
 #include "ngraph/ngraph.hpp"
 
 #include "ngraph_bridge/ngraph_executable.h"
@@ -50,6 +51,62 @@ class IE_Executable final : public Executable {
   // This keeps track of whether the original function was trivial: either a
   // constant function or an identity function
   shared_ptr<ngraph::Function> m_trivial_fn;
+
+  bool m_func_empty;
+
+  void CheckUnsupportedOps(shared_ptr<ngraph::Function>&);
+  void HandleNoParamsCase(shared_ptr<ngraph::Function>&);
+  ngraph::ResultVector m_results_orig;
+  ngraph::ParameterVector m_params_orig;
+  std::map<std::string, int> m_map_cnnparam_to_tfidx;   // which CNN param maps
+                                                        // to which index of the
+                                                        // TF input tensor
+  std::map<std::string, int> m_map_cnnresult_to_tfidx;  // which CNN result maps
+                                                        // to which index of the
+                                                        // TF output tensor
+  std::map<std::string, void*> m_map_cnnconstresult_to_ngnodeptr;
+  std::map<std::string, std::string>
+      m_nongraph_const_outputs;  // (input-const, output-result)
+  std::map<std::string, std::string>
+      m_map_result_to_ngnode;  // (result, from) e.g. Result_353->Constant_673,
+                               // Result_350->ngraph_output_1
+  std::map<std::string, void*> m_map_result_to_ngnodeptr;  // same as above one
+  void InfoSaveResultMaps();
+  void InfoSaveInOutIndexMaps();
+  shared_ptr<ngraph::Function> StripOffUnhandledNodes(
+      const shared_ptr<ngraph::Function>&);
+  void SetUpInputTensors(
+      const vector<shared_ptr<ngraph::runtime::Tensor>>& inputs);
+  void SetUpOutputTensors(
+      const vector<shared_ptr<ngraph::runtime::Tensor>>& outputs);
 };
+
+// Customize THROW_IE_EXCEPTION so you can see a VLOG. Call like this:
+// NGTF_THROW_IE_EXCEPTION << "Some details about error" << var1 << "more";
+#define NGTF_THROW_IE_EXCEPTION \
+  throw NGTF_IE_EXCEPTION_CLASS(__FILE__, __LINE__)
+class NGTF_IE_EXCEPTION_CLASS
+    : public InferenceEngine::details::InferenceEngineException {
+  std::string _file;
+  int _line;
+
+ public:
+  NGTF_IE_EXCEPTION_CLASS(const std::string& filename, const int line,
+                          const std::string& message = "")
+      : InferenceEngine::details::InferenceEngineException(filename, line,
+                                                           message) {
+    _file = filename;
+    _line = line;
+  }
+
+  InferenceEngine::details::InferenceEngineException& operator<<(
+      const std::string& message) {
+    NGRAPH_VLOG(2) << "!! IE EXCEPTION !! " << message << " at " << _file << ":"
+                   << _line;
+    return InferenceEngine::details::InferenceEngineException::operator<<(
+        message);
+  }
+};
+
 }
 }

@@ -45,7 +45,7 @@ class NGraphEncapsulateImpl {
                           std::stringstream& signature_ss);
 
   // Calls Compute Signature and gets ngraph executable
-  Status GetNgExecutable(const std::vector<Tensor>& tf_input_tensors,
+  Status GetNgExecutable(OpKernelContext* ctx, const std::vector<Tensor>& tf_input_tensors,
                          std::vector<TensorShape>& input_shapes,
                          std::vector<const Tensor*>& static_input_map,
                          std::shared_ptr<Executable>& ng_exec,
