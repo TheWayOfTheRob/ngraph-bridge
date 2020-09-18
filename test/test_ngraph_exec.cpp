@@ -36,6 +36,16 @@
 
 #include "test/test_utilities.h"
 
+//#include "ngraph/file_util.hpp"
+#include "util/all_close.hpp"
+#include "util/all_close_f.hpp"
+#include "util/autodiff/numeric_compare.hpp"
+#include "util/known_element_types.hpp"
+#include "util/ndarray.hpp"
+#include "util/random.hpp"
+#include "util/test_control.hpp"
+#include "util/test_tools.hpp"
+
 using namespace std;
 namespace ng = ngraph;
 
@@ -166,6 +176,15 @@ class NGraphExecTest : public ::testing::Test {
     }
     ASSERT_EQ(numconst, expected);
   };
+
+  std::shared_ptr<ngraph::Function> make_ngfunction_from_file(const std::string& file_name)
+  {
+    //const string json_path = file_util::path_join(SERIALIZED_ZOO, file_name);
+    const string json_string = ngraph::file_util::read_file_to_string(file_name);
+    stringstream ss(json_string);
+    shared_ptr<ngraph::Function> func = ngraph::deserialize(ss);
+    return func;
+  }
 };
 
 TEST_F(NGraphExecTest, Axpy) {
@@ -436,6 +455,23 @@ TEST_F(NGraphExecTest, NGraphPassConstantFolding2) {
 
   setenv("NGRAPH_PASS_ENABLES", "ConstantFolding:0", true);
   expect_const_count_ngfunc(*pgraph_new, 3);
+}
+
+TEST_F(NGraphExecTest, ExecNgFuncIECPU1) {
+  const std::string file_name("test_ngfunc1.json");
+  auto ngfunc = make_ngfunction_from_file(file_name);
+  ngraph::test::Uniform<float> rng(-1.0f, 1.0f);
+  vector<vector<float>> args;
+  for (shared_ptr<ngraph::op::Parameter> param : ngfunc->get_parameters())
+  {
+    vector<float> tv(shape_size(param->get_shape()));
+    rng.initialize(tv);
+    args.push_back(tv);
+  }
+  //auto iecpu_results = execute(ngfunc, args, "CPU");
+  auto backend = BackendManager::GetBackend();
+  std::shared_ptr<Executable> ng_exec = backend->compile(ngfunc);
+  ASSERT_EQ(1, 1);
 }
 
 }  // namespace testing

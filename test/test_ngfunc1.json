@@ -1,0 +1,221 @@
+[
+    {
+        "name": "Function_2",
+        "ops": [
+            {
+                "cacheable": false,
+                "element_type": "float",
+                "friendly_name": "conv4_block1_1_conv/kernel/Initializer/random_uniform/RandomUniform/Parameter_156",
+                "name": "Parameter_156",
+                "op": "Parameter",
+                "op_version": 0,
+                "outputs": [
+                    "Parameter_156_0"
+                ],
+                "shape": [
+                    1,
+                    1,
+                    512,
+                    256
+                ],
+                "type_info": {
+                    "name": "Parameter",
+                    "version": 0
+                }
+            },
+            {
+                "cacheable": false,
+                "element_type": "float",
+                "friendly_name": "conv3_block1_0_conv/kernel/Initializer/random_uniform/RandomUniform/Parameter_155",
+                "name": "Parameter_155",
+                "op": "Parameter",
+                "op_version": 0,
+                "outputs": [
+                    "Parameter_155_0"
+                ],
+                "shape": [
+                    1,
+                    1,
+                    256,
+                    512
+                ],
+                "type_info": {
+                    "name": "Parameter",
+                    "version": 0
+                }
+            },
+            {
+                "element_type": "float",
+                "friendly_name": "conv4_block1_1_conv/kernel/Initializer/random_uniform/min/Constant_164",
+                "name": "Constant_164",
+                "op": "Constant",
+                "op_version": 0,
+                "outputs": [
+                    "Constant_164_0"
+                ],
+                "shape": [],
+                "type_info": {
+                    "name": "Constant",
+                    "version": 0
+                },
+                "value": [
+                    "-0.0883883"
+                ]
+            },
+            {
+                "element_type": "float",
+                "friendly_name": "conv3_block1_0_conv/kernel/Initializer/random_uniform/sub/Constant_163",
+                "name": "Constant_163",
+                "op": "Constant",
+                "op_version": 0,
+                "outputs": [
+                    "Constant_163_0"
+                ],
+                "shape": [],
+                "type_info": {
+                    "name": "Constant",
+                    "version": 0
+                },
+                "value": [
+                    "0.176777"
+                ]
+            },
+            {
+                "attribute_visitor": true,
+                "auto_broadcast": "NUMPY",
+                "friendly_name": "conv4_block1_1_conv/kernel/Initializer/random_uniform/mul/Multiply_179",
+                "inputs": [
+                    "Constant_163",
+                    "Parameter_156"
+                ],
+                "name": "Multiply_179",
+                "op": "Multiply",
+                "op_version": 1,
+                "outputs": [
+                    "Multiply_179_0"
+                ],
+                "type_info": {
+                    "name": "Multiply",
+                    "version": 1
+                }
+            },
+            {
+                "attribute_visitor": true,
+                "auto_broadcast": "NUMPY",
+                "friendly_name": "conv4_block1_1_conv/kernel/Initializer/random_uniform/Add_185",
+                "inputs": [
+                    "Constant_164",
+                    "Multiply_179"
+                ],
+                "name": "Add_185",
+                "op": "Add",
+                "op_version": 1,
+                "outputs": [
+                    "Add_185_0"
+                ],
+                "type_info": {
+                    "name": "Add",
+                    "version": 1
+                }
+            },
+            {
+                "friendly_name": "ngraph_output_1/Result_190",
+                "inputs": [
+                    "Add_185"
+                ],
+                "name": "Result_190",
+                "needs_default_layout": true,
+                "op": "Result",
+                "op_version": 0,
+                "outputs": [
+                    "Result_190_0"
+                ],
+                "type_info": {
+                    "name": "Result",
+                    "version": 0
+                }
+            },
+            {
+                "element_type": "float",
+                "friendly_name": "conv3_block1_0_conv/kernel/Initializer/random_uniform/min/Constant_162",
+                "name": "Constant_162",
+                "op": "Constant",
+                "op_version": 0,
+                "outputs": [
+                    "Constant_162_0"
+                ],
+                "shape": [],
+                "type_info": {
+                    "name": "Constant",
+                    "version": 0
+                },
+                "value": [
+                    "-0.0883883"
+                ]
+            },
+            {
+                "attribute_visitor": true,
+                "auto_broadcast": "NUMPY",
+                "friendly_name": "conv3_block1_0_conv/kernel/Initializer/random_uniform/mul/Multiply_165",
+                "inputs": [
+                    "Parameter_155",
+                    "Constant_163"
+                ],
+                "name": "Multiply_165",
+                "op": "Multiply",
+                "op_version": 1,
+                "outputs": [
+                    "Multiply_165_0"
+                ],
+                "type_info": {
+                    "name": "Multiply",
+                    "version": 1
+                }
+            },
+            {
+                "attribute_visitor": true,
+                "auto_broadcast": "NUMPY",
+                "friendly_name": "conv3_block1_0_conv/kernel/Initializer/random_uniform/Add_178",
+                "inputs": [
+                    "Constant_162",
+                    "Multiply_165"
+                ],
+                "name": "Add_178",
+                "op": "Add",
+                "op_version": 1,
+                "outputs": [
+                    "Add_178_0"
+                ],
+                "type_info": {
+                    "name": "Add",
+                    "version": 1
+                }
+            },
+            {
+                "friendly_name": "ngraph_output_0/Result_189",
+                "inputs": [
+                    "Add_178"
+                ],
+                "name": "Result_189",
+                "needs_default_layout": true,
+                "op": "Result",
+                "op_version": 0,
+                "outputs": [
+                    "Result_189_0"
+                ],
+                "type_info": {
+                    "name": "Result",
+                    "version": 0
+                }
+            }
+        ],
+        "parameters": [
+            "Parameter_155",
+            "Parameter_156"
+        ],
+        "result": [
+            "Result_189",
+            "Result_190"
+        ]
+    }
+]

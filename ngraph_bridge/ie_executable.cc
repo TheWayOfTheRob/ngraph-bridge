@@ -53,6 +53,10 @@ IE_Executable::IE_Executable(shared_ptr<Function> func, string device)
 
     NGRAPH_VLOG(2) << "Creating IE CNN network using nGraph function";
     m_network = InferenceEngine::CNNNetwork(func2);
+
+#if (CMAKE_BUILD_TYPE == Debug)
+    debugger_print_ngfunc(*func2);
+#endif
   } else {
     NGRAPH_VLOG(2) << "! Given func has no usable IE layers, won't create CNN";
   }
@@ -75,7 +79,7 @@ IE_Executable::IE_Executable(shared_ptr<Function> func, string device)
     try {
       exe_network = ie.LoadNetwork(m_network, m_device);
     } catch (const InferenceEngine::details::InferenceEngineException& e) {
-      THROW_IE_EXCEPTION << "Exception in IE LoadNetwork: " << e.what() << " ("
+      THROW_IE_EXCEPTION << "Exception in IE LoadNetwork: " << m_network.getName() << " " << e.what() << " ("
                          << e.getStatus() << ")";
     }
     m_infer_req = exe_network.CreateInferRequest();

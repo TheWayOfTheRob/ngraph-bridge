@@ -67,6 +67,9 @@ include_directories(${TensorFlow_SRC_DIR})
 include_directories(${TensorFlow_SRC_DIR}/bazel-genfiles)
 include_directories(${TensorFlow_SRC_DIR}/bazel-bin)
 
+message(STATUS "Include ngraph test util dir: ${CMAKE_INSTALL_PREFIX}/../openvino/ngraph/test")
+include_directories(${CMAKE_INSTALL_PREFIX}/../openvino/ngraph/test)
+
 add_library(tensorflow_cc_lib SHARED IMPORTED)
 add_library(tensorflow_ops_testutil SHARED IMPORTED)
 set_target_properties(
