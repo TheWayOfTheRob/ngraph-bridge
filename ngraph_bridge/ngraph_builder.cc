@@ -3130,6 +3130,16 @@ Status Builder::TranslateGraph(
   vector<Node*> ordered;
   GetReversePostOrder(*input_graph, &ordered, NodeComparatorName());
 
+  {
+  std::cout << "TranslateGraph TF-Graph step_id " << ctx->step_id() << " ==> ";
+  string dbg;
+  for (const auto n : ordered) {
+    //std::cout << n->name() + " (" + n->type_string() + ") " + n->def().DebugString() + "  |  ";
+    dbg += n->name() + " (" + n->type_string() + ")  |  ";
+  }
+  std::cout << dbg + "\n";
+  }
+
   //
   // Split ops into params, retvals, and all others.
   //

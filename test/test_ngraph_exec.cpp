@@ -140,6 +140,30 @@ class NGraphExecTest : public ::testing::Test {
     return status;
   }
 
+  // Executes the graph on TF
+  Status RunGraphOnNGraph(const Graph& graph,
+                      const vector<pair<string, Tensor>>& feed_dict,
+                      const vector<string>& out_node_names,
+                      vector<Tensor>& out_tensors) {
+    // Create Session
+    SessionOptions options;
+    options.config.mutable_graph_options()
+        ->mutable_optimizer_options()
+        ->set_opt_level(tf::OptimizerOptions_Level_L0);
+    options.config.mutable_graph_options()
+        ->mutable_rewrite_options()
+        ->set_constant_folding(tf::RewriterConfig::OFF);
+    std::unique_ptr<Session> session(NewSession(options));
+
+    // Attach Graph
+    GraphDef gdef;
+    graph.ToGraphDef(&gdef);
+    TF_RETURN_IF_ERROR(session->Create(gdef));
+    ActivateNGraph();
+    Status status = session->Run(feed_dict, out_node_names, {}, &out_tensors);
+    return status;
+  }
+
   shared_ptr<Graph> attach_retval_node(Scope& scope, Graph* pgraph, Node* op,
                                        int outidx = 0) {
     Status s;
@@ -455,6 +479,26 @@ TEST_F(NGraphExecTest, NGraphPassConstantFolding2) {
 
   setenv("NGRAPH_PASS_ENABLES", "ConstantFolding:0", true);
   expect_const_count_ngfunc(*pgraph_new, 3);
+}
+
+TEST_F(NGraphExecTest, ExecTFGraph2) {
+  Graph input_graph(OpRegistry::Global());
+  ASSERT_OK(LoadGraph("test_graph2.pbtxt", &input_graph));
+  // Create the inputs for this graph
+  TensorShape tf_shape = TensorShape({2, 3});
+  int num_inputs = 2;
+  Tensor x(DT_FLOAT, tf_shape);
+  Tensor y(DT_FLOAT, tf_shape);
+  AssignInputValues(x, 1.0f);
+  AssignInputValues(y, 1.0f);
+  std::vector<Tensor> tf_inputs = {x, y};
+  vector<Tensor> expected_outputs;
+  vector<pair<string, Tensor>> feed_dict = {{"ngraph_input_0", x}, {"ngraph_input_1", y}};
+  //vector<string> out_node_names = {"ngraph_output_0", "ngraph_output_1"};
+  vector<string> out_node_names = {"conv3_block1_0_conv/kernel/Initializer/random_uniform", 
+      "conv4_block1_1_conv/kernel/Initializer/random_uniform"};
+  //ASSERT_OK(RunGraphOnTF(input_graph, feed_dict, out_node_names, expected_outputs));
+  ASSERT_OK(RunGraphOnNGraph(input_graph, feed_dict, out_node_names, expected_outputs));
 }
 
 TEST_F(NGraphExecTest, ExecNgFuncIECPU1) {
